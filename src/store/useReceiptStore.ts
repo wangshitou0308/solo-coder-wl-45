@@ -3,12 +3,15 @@ import { persist } from 'zustand/middleware';
 import { Receipt, ReceiptType } from '@/types';
 import { generateId } from '@/utils/date';
 import { mockReceipts } from '@/data/mockData';
+import { useFileStore } from './useFileStore';
 
 interface ReceiptStore {
   receipts: Receipt[];
   addReceipt: (receipt: Omit<Receipt, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addReceiptWithReturn: (receipt: Omit<Receipt, 'id' | 'createdAt' | 'updatedAt'>) => string;
   updateReceipt: (id: string, updates: Partial<Receipt>) => void;
   deleteReceipt: (id: string) => void;
+  deleteReceiptsByItem: (itemId: string) => void;
   getReceiptById: (id: string) => Receipt | undefined;
   getReceiptsByItem: (itemId: string) => Receipt[];
   getReceiptsByType: (type: ReceiptType) => Receipt[];
@@ -33,6 +36,17 @@ export const useReceiptStore = create<ReceiptStore>()(
         set((state) => ({ receipts: [...state.receipts, newReceipt] }));
       },
 
+      addReceiptWithReturn: (receiptData) => {
+        const newReceipt: Receipt = {
+          ...receiptData,
+          id: generateId(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        set((state) => ({ receipts: [...state.receipts, newReceipt] }));
+        return newReceipt.id;
+      },
+
       updateReceipt: (id, updates) => {
         set((state) => ({
           receipts: state.receipts.map((receipt) =>
@@ -44,9 +58,24 @@ export const useReceiptStore = create<ReceiptStore>()(
       },
 
       deleteReceipt: (id) => {
+        const receipt = get().getReceiptById(id);
         set((state) => ({
           receipts: state.receipts.filter((receipt) => receipt.id !== id),
         }));
+        if (receipt) {
+          const { deleteFilesByReceipt } = useFileStore.getState();
+          deleteFilesByReceipt(id);
+        }
+      },
+
+      deleteReceiptsByItem: (itemId) => {
+        const receipts = get().getReceiptsByItem(itemId);
+        const receiptIds = receipts.map((r) => r.id);
+        set((state) => ({
+          receipts: state.receipts.filter((receipt) => receipt.itemId !== itemId),
+        }));
+        const { deleteFilesByReceipt } = useFileStore.getState();
+        receiptIds.forEach((rid) => deleteFilesByReceipt(rid));
       },
 
       getReceiptById: (id) => {

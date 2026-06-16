@@ -119,15 +119,16 @@ export default function ReceiptNew() {
       const fileIds: string[] = [];
 
       for (const file of uploadedFiles) {
-        addFile({
+        const fileId = addFile({
           name: file.name,
           type: file.type,
           dataUrl: file.dataUrl,
           size: file.size,
         });
+        fileIds.push(fileId);
       }
 
-      addReceipt({
+      const newReceiptId = useReceiptStore.getState().addReceiptWithReturn({
         name: form.name,
         type: form.type,
         itemId: form.itemId || undefined,
@@ -138,6 +139,9 @@ export default function ReceiptNew() {
         description: form.description || undefined,
         fileIds,
       });
+
+      const { updateFileReceiptId } = useFileStore.getState();
+      fileIds.forEach((fid) => updateFileReceiptId(fid, newReceiptId));
 
       setSuccess(true);
       setTimeout(() => {

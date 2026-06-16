@@ -3,6 +3,9 @@ import { persist } from 'zustand/middleware';
 import { Item, ItemCategory, WarrantyExtension } from '@/types';
 import { generateId } from '@/utils/date';
 import { mockItems } from '@/data/mockData';
+import { useReceiptStore } from './useReceiptStore';
+import { useRepairStore } from './useRepairStore';
+import { useFileStore } from './useFileStore';
 
 interface ItemStore {
   items: Item[];
@@ -45,6 +48,14 @@ export const useItemStore = create<ItemStore>()(
       },
 
       deleteItem: (id) => {
+        const { deleteReceiptsByItem } = useReceiptStore.getState();
+        const { deleteRepairsByItem } = useRepairStore.getState();
+        const { deleteFilesByItem } = useFileStore.getState();
+
+        deleteReceiptsByItem(id);
+        deleteRepairsByItem(id);
+        deleteFilesByItem(id);
+
         set((state) => ({
           items: state.items.filter((item) => item.id !== id),
         }));

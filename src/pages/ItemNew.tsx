@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
@@ -28,8 +28,9 @@ const categoryIcons: Record<ItemCategory, typeof Package> = {
 export default function ItemNew() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addItem, updateItem, getItemById } = useItemStore();
-  const isEdit = !!id;
+  const isEdit = location.pathname.includes('/edit') && !!id;
 
   const [form, setForm] = useState({
     name: '',

@@ -9,6 +9,7 @@ interface RepairStore {
   addRepair: (repair: Omit<Repair, 'id' | 'createdAt'>) => void;
   updateRepair: (id: string, updates: Partial<Repair>) => void;
   deleteRepair: (id: string) => void;
+  deleteRepairsByItem: (itemId: string) => void;
   getRepairsByItem: (itemId: string) => Repair[];
   getTotalRepairCost: (itemId: string) => number;
   getMonthlyRepairCosts: (months: number) => { month: string; cost: number }[];
@@ -41,6 +42,12 @@ export const useRepairStore = create<RepairStore>()(
       deleteRepair: (id) => {
         set((state) => ({
           repairs: state.repairs.filter((repair) => repair.id !== id),
+        }));
+      },
+
+      deleteRepairsByItem: (itemId) => {
+        set((state) => ({
+          repairs: state.repairs.filter((repair) => repair.itemId !== itemId),
         }));
       },
 

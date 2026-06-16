@@ -174,10 +174,13 @@ export default function ItemDetail() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          <Link
+            to={`/items/${item.id}/edit`}
+            className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          >
             <Edit className="w-4 h-4" />
             <span className="hidden sm:inline text-sm">编辑</span>
-          </button>
+          </Link>
           <button
             onClick={handleDelete}
             className="flex items-center gap-2 px-3 py-2 text-danger-600 hover:bg-danger-50 rounded-lg transition-colors"

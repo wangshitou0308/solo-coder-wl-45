@@ -5,8 +5,11 @@ import { generateId } from '@/utils/date';
 
 interface FileStore {
   files: FileAttachment[];
-  addFile: (file: Omit<FileAttachment, 'id' | 'createdAt'>) => void;
+  addFile: (file: Omit<FileAttachment, 'id' | 'createdAt'>) => string;
   deleteFile: (id: string) => void;
+  deleteFilesByReceipt: (receiptId: string) => void;
+  deleteFilesByItem: (itemId: string) => void;
+  updateFileReceiptId: (fileId: string, receiptId: string) => void;
   getFileById: (id: string) => FileAttachment | undefined;
   getFilesByReceipt: (receiptId: string) => FileAttachment[];
   getFilesByItem: (itemId: string) => FileAttachment[];
@@ -24,11 +27,32 @@ export const useFileStore = create<FileStore>()(
           createdAt: new Date().toISOString(),
         };
         set((state) => ({ files: [...state.files, newFile] }));
+        return newFile.id;
       },
 
       deleteFile: (id) => {
         set((state) => ({
           files: state.files.filter((file) => file.id !== id),
+        }));
+      },
+
+      deleteFilesByReceipt: (receiptId) => {
+        set((state) => ({
+          files: state.files.filter((file) => file.receiptId !== receiptId),
+        }));
+      },
+
+      deleteFilesByItem: (itemId) => {
+        set((state) => ({
+          files: state.files.filter((file) => file.itemId !== itemId),
+        }));
+      },
+
+      updateFileReceiptId: (fileId, receiptId) => {
+        set((state) => ({
+          files: state.files.map((file) =>
+            file.id === fileId ? { ...file, receiptId } : file
+          ),
         }));
       },
 

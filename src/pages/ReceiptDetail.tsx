@@ -35,11 +35,24 @@ export default function ReceiptDetail() {
   const navigate = useNavigate();
   const { getReceiptById, deleteReceipt } = useReceiptStore();
   const { getItemById } = useItemStore();
-  const { getFilesByReceipt } = useFileStore();
+  const { getFilesByReceipt, files: allFiles } = useFileStore();
   const [previewFile, setPreviewFile] = useState<string | null>(null);
 
   const receipt = getReceiptById(id || '');
-  const files = id ? getFilesByReceipt(id) : [];
+  const files = useMemo(() => {
+    if (!id) return [];
+    const byReceiptId = getFilesByReceipt(id);
+    const byFileIds = receipt?.fileIds
+      ? allFiles.filter((f) => receipt.fileIds.includes(f.id))
+      : [];
+    const merged = [...byReceiptId];
+    byFileIds.forEach((f) => {
+      if (!merged.find((m) => m.id === f.id)) {
+        merged.push(f);
+      }
+    });
+    return merged;
+  }, [id, receipt, getFilesByReceipt, allFiles]);
   const item = receipt?.itemId ? getItemById(receipt.itemId) : undefined;
 
   if (!receipt) {
